@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
 
 namespace BrouwerService
 {
@@ -30,6 +31,11 @@ namespace BrouwerService
             services.AddDbContext<BierlandContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("bierland")));
             services.AddScoped<IBrouwerRepository, BrouwerRepository>();
+            services.AddSwaggerGen(c => {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Brouwers API", Version = "v1" });
+                c.EnableAnnotations();
+            });
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -40,6 +46,8 @@ namespace BrouwerService
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseSwagger();
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Brouwer API"));
             app.UseRouting();
 
             app.UseAuthorization();
