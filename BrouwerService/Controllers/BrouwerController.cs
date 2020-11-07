@@ -7,6 +7,7 @@ using BrouwerService.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace BrouwerService.Controllers
 {
@@ -18,11 +19,13 @@ namespace BrouwerService.Controllers
         public BrouwerController(IBrouwerRepository repository) =>
          this.repository = repository;
         [HttpGet]
-        public ActionResult FindAll() => base.Ok(repository.FindAll());
+        [SwaggerOperation("Alle brouwers")]
+        public async Task<ActionResult> FindAll() => base.Ok(await repository.FindAllAsync());
         [HttpGet("{id}")]
-        public ActionResult FindById(int id)
+        [SwaggerOperation("Brouwer waarvan je de id kent")]
+        public async Task<ActionResult> FindById(int id)
         {
-            var brouwer = repository.FindById(id);
+            var brouwer = await repository.FindByIdAsync(id);
             if (brouwer == null)
             {
                 return base.NotFound();
@@ -30,36 +33,41 @@ namespace BrouwerService.Controllers
             return base.Ok(brouwer);
         }
         [HttpGet("naam")]
-        public ActionResult FindByBeginNaam(string begin) => base.Ok(repository.FindByBeginNaam(begin));
+        [SwaggerOperation("Brouwers waarvan je het begin van de naam kent")]
+        public async Task<ActionResult> FindByBeginNaam(string begin) =>
+         base.Ok(await repository.FindByBeginNaamAsync(begin));
         [HttpDelete("{id}")]
-        public ActionResult Delete(int id)
+        [SwaggerOperation("Brouwer verwijderen")]
+        public async Task<ActionResult> Delete(int id)
         {
-            var brouwer = repository.FindById(id);
+            var brouwer = await repository.FindByIdAsync(id);
             if (brouwer == null)
             {
                 return base.NotFound();
             }
-            repository.Delete(brouwer);
+            await repository.DeleteAsync(brouwer);
             return base.Ok();
         }
         [HttpPost]
-        public ActionResult Post(Brouwer brouwer)
+        [SwaggerOperation("Brouwer toevoegen")]
+        public async Task<ActionResult> Post(Brouwer brouwer)
         {
             if (this.ModelState.IsValid)
             {
-                repository.Insert(brouwer);
+                await repository.InsertAsync(brouwer);
                 return base.CreatedAtAction(nameof(FindById), new { id = brouwer.Id }, null);
             }
             return base.BadRequest(this.ModelState);
         }
         [HttpPut("{id}")]
-        public ActionResult Put(int id, Brouwer brouwer)
+        [SwaggerOperation("Brouwer wijzigen")]
+        public async Task<ActionResult> Put(int id, Brouwer brouwer)
         {
             if (this.ModelState.IsValid && brouwer.Id == id)
             {
                 try
                 {
-                    repository.Update(brouwer);
+                    await repository.UpdateAsync(brouwer);
                     return base.Ok();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -72,8 +80,8 @@ namespace BrouwerService.Controllers
                 }
             }
             return base.BadRequest(this.ModelState);
-
         }
+
 
     }
 }
