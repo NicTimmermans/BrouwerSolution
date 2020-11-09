@@ -36,6 +36,7 @@ namespace BrouwerService
                 c.EnableAnnotations();
             });
             services.AddCors();
+            services.AddHttpClient();
 
         }
 

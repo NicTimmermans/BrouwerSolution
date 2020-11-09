@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using BrouwerService.Models;
 using BrouwerService.Repositories;
@@ -15,9 +16,14 @@ namespace BrouwerService.Controllers
     [ApiController]
     public class BrouwerController : ControllerBase
     {
+        private readonly IHttpClientFactory clientFactory;
         private readonly IBrouwerRepository repository;
-        public BrouwerController(IBrouwerRepository repository) =>
-         this.repository = repository;
+        public BrouwerController(IBrouwerRepository repository, IHttpClientFactory clientFactory)
+        {
+            this.repository = repository;
+            this.clientFactory = clientFactory;
+        }
+         
         [HttpGet]
         [SwaggerOperation("Alle brouwers")]
         public async Task<ActionResult> FindAll() => base.Ok(await repository.FindAllAsync());
